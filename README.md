@@ -1,7 +1,14 @@
 # Kitchen Recipes app
 
-An installable, offline-first web app with 217 recipes and 11 seven-day meal plans.
+An installable, offline-first web app with 218 recipes and 11 seven-day meal plans.
 Once it has loaded once, everything (recipes, fonts, icons) is stored on the device and it opens with no internet connection.
+
+## Features
+
+- Browse by category, filter by tag, search titles and ingredients, star favourites.
+- Recipe pages scale quantities by serves, let you tick off ingredients and steps, and can keep the screen awake.
+- **Selected meals**: plan 3 to 7 days of breakfast, lunch, snacks and dinner. Add from any recipe page with the + button, from the planner grid, or load one of the seven-day meal plans.
+- **Shopping list**: built from the selected meals, grouped by supermarket aisle, with quantities combined where units match. Tap anything you already have to move it out of the way. Copy or share the list, open nearby supermarkets in Maps, or jump to the Woolworths and Coles listing for an item to check its price.
 
 ## What is in the folder
 
