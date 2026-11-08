@@ -560,7 +560,7 @@ document.getElementById('chooserX').onclick = closeChooser;
 document.getElementById('scrim').onclick = closeChooser;
 
 /* ---- shopping list ---- */
-const UNITS = { tbsp:'tbsp', tablespoon:'tbsp', tablespoons:'tbsp', tsp:'tsp', teaspoon:'tsp', teaspoons:'tsp', cup:'cup', cups:'cup', g:'g', gm:'g', gms:'g', gram:'g', grams:'g', kg:'kg', ml:'ml', l:'L', litre:'L', litres:'L', liter:'L', liters:'L', can:'can', cans:'can', tin:'tin', tins:'tin', pkt:'pkt', pkts:'pkt', packet:'pkt', packets:'pkt', bunch:'bunch', bunches:'bunch', clove:'clove', cloves:'clove', slice:'slice', slices:'slice', pinch:'pinch', dash:'dash', handful:'handful', handfuls:'handful', sprig:'sprig', sprigs:'sprig', piece:'piece', pieces:'piece', stalk:'stalk', stalks:'stalk', head:'head', heads:'head', knob:'knob', large:'large', small:'small', medium:'medium', x:'' };
+const UNITS = { tbsp:'tbsp', tbs:'tbsp', tablespoon:'tbsp', tablespoons:'tbsp', tsp:'tsp', teaspoon:'tsp', teaspoons:'tsp', cup:'cup', cups:'cup', g:'g', gm:'g', gms:'g', gram:'g', grams:'g', kg:'kg', ml:'ml', mls:'ml', l:'L', litre:'L', litres:'L', liter:'L', liters:'L', oz:'oz', ounce:'oz', ounces:'oz', lb:'lb', lbs:'lb', pound:'lb', pounds:'lb', cm:'cm', inch:'inch', inches:'inch', can:'can', cans:'can', tin:'tin', tins:'tin', pkt:'pkt', pkts:'pkt', packet:'pkt', packets:'pkt', pack:'pkt', box:'box', block:'block', bunch:'bunch', bunches:'bunch', clove:'clove', cloves:'clove', slice:'slice', slices:'slice', pinch:'pinch', pinches:'pinch', dash:'dash', dashes:'dash', drop:'drop', drops:'drop', splash:'splash', squeeze:'squeeze', handful:'handful', handfuls:'handful', sprig:'sprig', sprigs:'sprig', piece:'piece', pieces:'piece', stalk:'stalk', stalks:'stalk', stick:'stick', sticks:'stick', head:'head', heads:'head', knob:'knob', scoop:'scoop', scoops:'scoop', quart:'quart', quarts:'quart', serve:'serve', serves:'serve', large:'large', small:'small', medium:'medium', x:'' };
 const AISLES = [
   ['Fruit & veg', /\b(lemon|lime|onion|garlic|tomato|spinach|lettuce|greens|salad|cucumber|capsicum|zucchini|pumpkin|carrot|celery|mushroom|avocado|parsley|coriander|basil|mint|dill|thyme|rosemary|chives?|ginger|chilli|chili|potato|broccoli|broccolini|cauliflower|cabbage|kale|berr|blueberr|strawberr|raspberr|banana|apple|pear|orange|mango|eggplant|asparagus|green bean|snow pea|peas?|corn|leek|fennel|rocket|sprout|shallot|spring onion|fruit|herb|lemongrass|bok choy|pak choy|radish|beetroot|kiwi|grape|melon|pineapple|passionfruit|date|fig|jalape)/],
   ['Meat & seafood', /\b(chicken|beef|pork|lamb|mince|bacon|salmon|prawn|shrimp|fish|snapper|barramundi|steak|sausage|ham|turkey|chorizo|prosciutto|squid|calamari|mussel|scallop|cod|trout|kingfish|flathead|ling|hoki)\b/],
@@ -568,21 +568,81 @@ const AISLES = [
   ['Bakery', /\b(bread|wrap|tortilla|bun|pita|roll|sourdough|bagel|naan|crumpet)/],
   ['Frozen', /\bfrozen\b/],
 ];
+const SIZE_UNITS = /^(large|small|medium)$/;
+const FILL = /^(?:heaped|heaping|level|rounded|generous|scant|big|good|fresh)\s+/i;
+const LEAD = /^(?:(?:finely|roughly|thinly|thickly|coarsely|lightly|freshly|very|well)\s+)?(?:chopped|diced|crushed|sliced|grated|minced|shredded|mashed|melted|softened|beaten|whisked|sifted|toasted|cooked|hard[- ]?(?:boiled|cooked)|soft[- ]?boiled|poached|scrambled|peeled|trimmed|cleaned|deveined|shelled|crumbled|freshly squeezed|loose|loosely packed|packed|tepid|lukewarm|boiling|iced|ice[- ]cold|chilled|solid|liquid|superfine|blanched|low[- ]salt|reduced[- ]salt|salt[- ]reduced|no[- ]added[- ]salt|fresh|dried|organic|raw|ripe|large|small|medium|big|cold|warm|hot|canned|tinned|good[- ]quality|quality|extra[- ](?:firm|lean|large|light|ripe|thick)|firm|hard|soft|thick|thin|dry|whole|free[- ]?range|skinless|boneless|lean|unsalted|salted|light|reduced[- ]fat|low[- ]fat|full[- ]fat|high[- ]protein|unsweetened|sweetened|room[- ]temperature|plain|natural|pure|powdered|crisp|crunchy|juicy|sweet|your favourite|favourite|good|nice|heaped|heaping|level|rounded|generous|a few|some|optional|about|approx\.?|approximately|roughly)\b[,\s]*/i;
+const TAIL = /\s*[,(]?\s*\b(?:finely|roughly|thinly|thickly|coarsely|lightly|freshly|well|very)?\s*(?:chopped|sliced|diced|grated|minced|crushed|crumbled|peeled|halved|quartered|trimmed|drained|rinsed|melted|softened|beaten|whisked|sifted|cubed|shredded|torn|zested|juiced|toasted|cooked|mashed|cold|warm|hot|cut\b.*|at room temperature|room temperature|skinless|skin[- ]?on|boneless|on the bone|unsweetened|sweetened|light|thick|firm|extra|plus extra.*|to serve|to taste|to season|to garnish|for garnish|for serving|for frying|for greasing|for dusting|for sweetener|for .*|to decorate|infused.*|plus .*|to dust.*|to top|of choice|of your choice|if desired|as needed|as required|optional|approx\.?.*|approximately.*|each\b.*|more if.*|adjust.*|be very careful.*|i use.*|made from.*|or more.*|or less.*|or to taste|or so|(?:&|and) tops?|in (?:juice|brine|oil|springwater|spring water|water)|with .*)\b.*$/i;
+const SYN = [[/\b(coriander|basil|mint|parsley|thyme|rosemary|sage|oregano|dill|kale|spinach|curry|bay) leaves?$/, '$1'], [/\bgarlic cloves?$/, 'garlic'], [/\bcloves? (of )?garlic$/, 'garlic'], [/^(?:root )?(ginger|horseradish|turmeric)(?: root)?$/, '$1'], [/\b(salmon|cod|snapper|barramundi|sole|fish|trout|kingfish|flathead|ling|hoki|white fish|chicken breast|chicken thigh|chicken) fillets?$/, '$1'], [/^spring onions?( stalks?)?$/, 'spring onion'], [/^(sea|table|kosher|pink|himalayan|rock|flaky|coarse|fine)( salt)?( flakes)?$/, 'salt'], [/^(?:sea |coarse |flaky |fine |pink )?salt (?:and|&) (?:freshly )?(?:ground |cracked |black )*pepper$/, 'salt and pepper'], [/^(black|ground|cracked|white|ground black|freshly ground|freshly ground black) pepper$/, 'pepper'], [/\bstevia\b.*/, 'stevia'], [/.*\bmonk ?fruit\b.*/, 'monk fruit'], [/^(?:cold[- ]pressed |extra[- ]|light |pressed )?(?:virgin )?olive oil$/, 'olive oil'], [/^evoo$/, 'olive oil'], [/^(?:chinese )?(?:5|five)[- ]spice(?: powder)?$/, 'five spice'], [/^(feta|fetta|cheddar|parmesan|mozzarella|ricotta|haloumi|halloumi|cottage|cream|goat'?s?|blue|brie|swiss|tasty) cheese$/, '$1'], [/^fetta$/, 'feta'], [/^halloumi$/, 'haloumi'], [/^(?:natural |plain |thick |greek[- ]style )?greek yoghurt$/, 'greek yoghurt'], [/^yogurt$/, 'yoghurt'], [/^greek yogurt$/, 'greek yoghurt'], [/^juice (?:of |from )?(?:[\d½¼⅓]+ |one |half an? |an? )?(?:freshly squeezed )?(lemon|lime|orange)s?$/, '$1 juice'], [/^zest (?:of |from )?(?:[\d½¼⅓]+ |one |half an? |an? )?(lemon|lime|orange)s?$/, '$1 zest'], [/^leaves (?:of )?(basil|mint|coriander|parsley|thyme|sage|oregano|dill)$/, '$1'], [/^(?:brown |white |red |yellow |spanish )?onions?$/, (m) => m.replace(/s$/, '')], [/^eggs?$/, 'egg'], [/^(?:large |small |medium )?(?:free[- ]range )?eggs?$/, 'egg'], [/^capsicums?$/, 'capsicum'], [/^(red|green|yellow) (?:bell )?(?:pepper|capsicum)s?$/, '$1 capsicum'], [/^(?:fresh |baby |english )?spinach(?: leaves)?$/, (m) => /baby/.test(m) ? 'baby spinach' : 'spinach'], [/^(?:flax ?seed|flaxseed|linseed)(?: meal)?$/, 'flaxseed meal'], [/^(?:ground |freshly ground )?flax ?seeds?$/, 'flaxseed meal'], [/^(?:raw |unsalted |roasted )?(almond|cashew|walnut|pecan|macadamia|peanut|pistachio|hazelnut)s?$/, '$1s'], [/^(?:unsweetened |raw )?(?:cocoa|cacao)(?: powder)?$/, 'cocoa powder']];
+const BRANDS = /\b(woolworths|coles|aldi|philadelphia|lindt|slendier|macro|mayver'?s|before ?you ?speak|bulla|bega|nuttelex|ayam|san remo|barilla|heinz|edgell|john west|sirena|mingle|morlife|venerdi|chobani|jalna|tamar valley|yo ?pro)\b\s*/gi;
+
+function cleanQtyText(s){
+  return s.replace(/[“”"]/g, '').replace(/(\d\s*[a-z]+)\+/i, '$1').replace(/[¹]/g, '1').replace(/[²]/g, '2').replace(/[³]/g, '3')
+    .replace(/(\d)\s*[–—]\s*(\d)/g, '$1-$2').replace(/(\d)\s+(?:or|to)\s+(\d)/g, '$1-$2')
+    .replace(/[⁄∕]\s+(?=[a-z])/gi, ' ').replace(/^\d+\s+(?=cup|tbsp|tsp|g\b)/i, m => m)   // "1∕ cup": broken fraction, drop the number
+    .replace(/[⁄∕]/g, '/').replace(/\/\s+(\d)/g, '/$1')
+    .replace(/^\(?optional\)?[:\s-]*/i, '').replace(/^\([^)]*\)\s*/, '').replace(/^(?:can add|add|use|plus|about|approx\.?|approximately|around|roughly)\s+/i, '')
+    .replace(/^(?:a|an|one)\s+(?=(?:dash|pinch|drop|handful|knob|bunch|slice|clove|few|little|splash|squeeze)\b)/i, '1 ')
+    .replace(/^half an?\s+/i, '½ ').replace(/^a quarter (?:of )?an?\s+/i, '¼ ').replace(/^a third (?:of )?an?\s+/i, '⅓ ')
+    .replace(/^(\d+)\s*(\d)\/(\d)\b/, (m, a, b, c) => (a.length === 2 && a[0] === '1' && +a[1] <= +c) ? `1 ${a[1]}/${c}` : m);
+}
+function takeUnit(rest){
+  let unit = '', sized = '';
+  for (let k = 0; k < 3; k++) {
+    rest = rest.replace(FILL, '');
+    const um = rest.match(/^([a-zA-Z]+)\.?\s+/); if (!um) break;
+    const u = UNITS[um[1].toLowerCase()]; if (u === undefined) break;
+    if (SIZE_UNITS.test(u)) sized = u; else if (unit) break; else unit = u;
+    rest = rest.slice(um[0].length);
+  }
+  return [unit || sized, rest];
+}
+function stripLead(n){ for (let i = 0; i < 8; i++) { const n2 = n.replace(LEAD, ''); if (n2 === n) break; n = n2; } return n; }
+function cleanName(seg){
+  let n = seg.replace(/\d+\s*%\s*(?:cacao|cocoa)?\s*/gi, ' ').replace(BRANDS, '').replace(/\s+/g, ' ').trim();
+  n = stripLead(n);
+  const tm = n.match(TAIL); if (tm && tm.index > 0) n = n.slice(0, tm.index);
+  n = stripLead(n.trim());
+  n = n.replace(/^(?:bunch|handful|knob|pinch|dash|slice|clove|piece|cup|tbsp|tsp|sprig|stalk|head|block|can|tin|jar|packet|package|pkt|bag|punnet|square|spoon|sprinkle|shot|portion|quart|scoop|serve|serving)e?s?\s+(?:of\s+)?/i, '');
+  n = stripLead(n.replace(/^[^a-z0-9]+/i, ''));
+  n = n.replace(/^[^a-z0-9]+/i, '').replace(/[^a-z0-9)%]+$/i, '').trim();
+  if (!n.includes('(')) n = n.replace(/\)+$/, '').trim();
+  return n;
+}
 function parseIng(t){
-  let s = t.trim(), qty = null, rest = s;
+  let s = cleanQtyText(t.trim()), qty = null, unit = '', rest = s;
+  const brokenFrac = s.match(/^[\d¹²³]+[⁄∕]\s/); if (brokenFrac) { s = s.slice(brokenFrac[0].length); rest = s; }
   const q = parseQty(s);
-  if (q) { qty = q[0]; rest = s.slice(q[1]).trim(); const rm = rest.match(/^[-–]\s*(\S+)\s*/); if (rm && parseQty(rm[1])) rest = rest.slice(rm[0].length); }
-  rest = rest.replace(/^x\s+/i, '');
-  let unit = '';
-  for (let k = 0; k < 2; k++) { const um = rest.match(/^([a-zA-Z]+)\.?\s+/); if (um && UNITS[um[1].toLowerCase()] !== undefined) { const u = UNITS[um[1].toLowerCase()]; if (!unit || !/^(large|small|medium)$/.test(unit)) unit = unit && /^(large|small|medium)$/.test(u) ? unit : u; else unit = u; rest = rest.slice(um[0].length); } else break; }
-  rest = rest.replace(/^\([^)]*\)\s*/, '').replace(/^(of|pkt|packet|can|tin)\s+/i, '');
-  let name = rest.replace(/\([^)]*\)/g, '').replace(/\s+/g, ' ').trim();
-  name = name.split(/,|;|\s[-–]\s|\bor\b/)[0].trim();
-  name = name.replace(/\s*\b(finely|roughly|thinly|thickly|coarsely|lightly)?\s*(chopped|sliced|diced|grated|minced|crushed|peeled|halved|quartered|trimmed|drained|rinsed|melted|softened|beaten|whisked|sifted|cubed|shredded|torn|zested|juiced|toasted|cooked|to serve|to taste|optional|extra|plus extra|for serving|for frying|for greasing)\b.*$/i, '').trim();
-  if (!name) name = rest.trim() || t;
-  let key = name.toLowerCase().replace(/^(fresh|dried|frozen|large|small|medium|ripe|raw|baby|whole|good quality)\s+/, '').trim();
-  if (/oes$/.test(key)) key = key.slice(0, -2); else if (/[^s]s$/.test(key) && key.length > 3 && !/ss$/.test(key)) key = key.slice(0, -1);
-  return { qty, unit, name, key: key || t.toLowerCase(), raw: t };
+  if (q) {
+    qty = q[0]; rest = s.slice(q[1]).trim();
+    const rm = rest.match(/^[-–]\s*(?:to\s+)?(\S+)\s*/); if (rm && parseQty(rm[1])) rest = rest.slice(rm[0].length);           // ranges: 2-3 tbsp
+    const xm = rest.match(/^x\s*/i); if (xm) { rest = rest.slice(xm[0].length); const q2 = parseQty(rest); if (q2) { qty *= q2[0]; rest = rest.slice(q2[1]).trim(); } }  // 2 x 125 g
+    const pm = rest.match(/^\+\s*/); if (pm) { const q2 = parseQty(rest.slice(pm[0].length)); if (q2) { qty += q2[0]; rest = rest.slice(pm[0].length + q2[1]).trim(); } }  // "1 + ¼ cup": sum
+    [unit, rest] = takeUnit(rest);
+    const pm2 = rest.match(/^\+\s*(\S+)\s*([a-zA-Z]+)\.?\s+/); if (pm2 && parseQty(pm2[1]) && UNITS[pm2[2].toLowerCase()] !== undefined) rest = rest.slice(pm2[0].length);  // "½ cup + 1 tbsp flour": drop the extra
+    const sz = rest.match(/^\(?\d+(?:[.,]\d+)?\s*(?:-|to)?\s*\d*\s*(?:g|gm|gms|gram|grams|kg|ml|oz|ounce|ounces|cm|lb|pound)s?\)?\s*/i); if (sz) rest = rest.slice(sz[0].length);  // per-piece sizes: "4 6 ounce tuna steaks"
+    rest = rest.replace(/^\d+-?to \d+-?(ounce|oz|gram|g)s?\s*/i, '');
+  } else {
+    const s2 = s.replace(/^(?:large|small|medium|big|generous|heaped|good)\s+/i, '');
+    const dm = s2.match(/^(?:a |an )?(dash|pinch|drop|handful|splash|squeeze|knob|bunch|few|little|sprig|slice|clove)e?s?\s+(?:of\s+)?/i);
+    if (dm) { unit = UNITS[dm[1].toLowerCase()] || ''; qty = 1; rest = s2.slice(dm[0].length); }
+  }
+  if (SIZE_UNITS.test(unit)) unit = '';
+  const restOrig = rest;
+  rest = rest.replace(/^\([^)]*\)\s*/, '').replace(/^(?:of|pkt|packet|can|tin|box|block|bag|jar|bottle|sachet|punnet|pieces?|fillets?|slices?)\s+(?:of\s+)?/i, '');
+  let base = rest.replace(/\([^)]*\)/g, ' ').replace(/\*+/g, '').replace(/\s+/g, ' ').trim();
+  if (!base) { const inner = (restOrig.match(/\(([^)]*)\)/) || [])[1] || ''; base = inner.replace(/^[\d\s\/½¼¾⅓⅔.]+(?:[a-z]+\s+)?(?:of\s+)?/i, ''); }
+  let segs = base.split(/,|;|\s[-–]\s|\bor\b|\band\/or\b/).map(x => x.trim()).filter(Boolean);
+  segs = segs.flatMap(x => /[a-z]\s*\/\s*[a-z]/i.test(x) ? x.split(/\s*\/\s*/) : [x]);
+  let name = '';
+  for (const seg of segs) { name = cleanName(seg); if (name) break; }
+  let key = name.toLowerCase().replace(/[’']/g, "'").replace(/\s+/g, ' ');
+  for (const [re, to] of SYN) key = key.replace(re, to);
+  const canon = key;
+  if (/ves$/.test(key)) key = key.slice(0, -3) + 'f'; else if (/oes$/.test(key)) key = key.slice(0, -2); else if (/[^su]s$/.test(key) && key.length > 3 && !/\b(?:hummus|couscous|asparagus|molasses|swiss|cress|chips?)$/.test(key)) key = key.slice(0, -1);
+  if (!key) key = t.toLowerCase();
+  const shown = canon || t;
+  const disp = shown.charAt(0).toUpperCase() + shown.slice(1);
+  return { qty, unit, name: disp, key, raw: t };
 }
 function aisleFor(key){ for (const [name, re] of AISLES) if (re.test(key)) return name; return 'Pantry & other'; }
 function buildList(entries){
@@ -592,7 +652,7 @@ function buildList(entries){
     for (const ing of r.ingredients) {
       if (!ing.t) continue;
       const p = parseIng(ing.t);
-      const g = groups[p.key] || (groups[p.key] = { key: p.key, name: p.name.charAt(0).toUpperCase() + p.name.slice(1), aisle: aisleFor(p.key), items: [] });
+      const g = groups[p.key] || (groups[p.key] = { key: p.key, name: p.name, aisle: aisleFor(p.key), items: [] });
       g.items.push({ qty: p.qty, unit: p.unit, raw: ing.t, from: r.title });
     }
   }

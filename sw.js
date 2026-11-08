@@ -1,6 +1,6 @@
 /* Kitchen Recipes — offline service worker.
    Bump VERSION whenever index.html (the recipe data) or any listed file changes. */
-const VERSION = 'kitchen-recipes-v3';
+const VERSION = 'kitchen-recipes-v4';
 const ASSETS = [
   './',
   './index.html',
